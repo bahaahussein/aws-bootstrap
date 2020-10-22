@@ -8,7 +8,6 @@ EC2_INSTANCE_TYPE=t2.micro
 
 AWS_ACCOUNT_ID=`aws sts get-caller-identity --profile awsbootstrap \
         --query "Account" --output text`
-		
 CODEPIPELINE_BUCKET="$STACK_NAME-$REGION-codepipeline-$AWS_ACCOUNT_ID"
 
 # Generate a personal access token with repo and admin:repo_hook
@@ -46,10 +45,13 @@ aws cloudformation deploy \
     GitHubBranch=$GH_BRANCH \
     GitHubPersonalAccessToken=$GH_ACCESS_TOKEN \
     CodePipelineBucket=$CODEPIPELINE_BUCKET
-	
+
 # If the deploy succeeded, show the DNS name of the created instance
 if [ $? -eq 0 ]; then
   aws cloudformation list-exports \
-    --profile awsbootstrap
+    --profile awsbootstrap \
     --query "Exports[?starts_with(Name,'InstanceEndpoint')].Value"
+  aws cloudformation list-exports \
+    --profile awsbootstrap \
+    --query "Exports[?starts_with(Name,'LBEndpoint')].Value"
 fi
